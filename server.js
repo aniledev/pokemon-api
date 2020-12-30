@@ -10,7 +10,11 @@ const app = express();
 // this fill is access by node by hidden to a file management systne
 
 app.use(morgan("dev"));
-app.use(validateBearerToken);
+app.use(function validateBearerToken(req, res, next) {
+  console.log("validate bearer token middleware");
+  //move on to the next middleware
+  next();
+});
 console.log(API_TOKEN);
 console.log(process.env.API_TOKEN);
 

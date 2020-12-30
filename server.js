@@ -5,9 +5,12 @@ const express = require("express");
 const morgan = require("morgan");
 const POKEDEX = require("./pokedex.json");
 const cors = require("cors");
+const helmet = require("helmet");
 const app = express();
 
 app.use(morgan("dev"));
+// this middleware hides some specific request headers to make sure your application isn't more susceptible to attacks
+app.use(helmet());
 app.use(cors());
 
 // use function as middleware to validate authorizion headers and token

@@ -1,31 +1,31 @@
 // import express module, morgan module, express app object, and use morgan middle ware
 // require the dotenv file as early as possible; this module allows the .env file to be read and process.env variables to be written
-require("dotenv").config;
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
-const API_TOKEN = process.env.API_TOKEN;
-const fs = require("fs");
+const POKEDEX = require("./pokedex.json");
 const app = express();
 
 app.use(morgan("dev"));
 
-// use function as middleware
+// use function as middleware to validate authorizion headers and token
 app.use(function validateBearerToken(req, res, next) {
-  const authToken = req.get("Authorization");
   const apiToken = process.env.API_TOKEN;
+  const authToken = req.get("Authorization");
+
+  console.log(apiToken);
+  console.log(authToken);
 
   console.log("validate bearer token middleware");
 
   // validate the authorization header to match the process token as well as make sure a token is present
-  if (!authToken || authToken.split("")[1] !== apiToken) {
+  if (!authToken || authToken !== apiToken) {
     return res.status(401).json({ error: "Unauthorized request" });
   }
 
   //move on to the next middleware
   next();
 });
-console.log(API_TOKEN);
-console.log(process.env.API_TOKEN);
 
 // array of valid pokemon types
 const validTypes = [
@@ -50,7 +50,7 @@ const validTypes = [
 ];
 
 // create a function that handles the req and res callback function
-const handleGetTypes = (_req, res, _next) => {
+const handleGetTypes = (req, res, next) => {
   // The search options for either name or type are provided in query string parameters
   // When searching by name, users are searching for whether the Pokemon's name includes a specified string. The search should be case insensitive.
   //When searching by type, users must specify one of the valid types
@@ -58,16 +58,28 @@ const handleGetTypes = (_req, res, _next) => {
   res.json(validTypes);
 };
 
-const handleGetPokemon = (_req, res, _next) => {
-  res.send("Hello Pokemon!");
-};
+const handleGetPokemon = (req, res, next) => {
+  let response = POKEDEX.pokemon;
 
-// a middleware function
-function validateBearerToken(_req, res, _next) {
-  // verify bearer toekn header
-  //vrerify token matches our secret ornot
-  // all validation passed, move to next middleware on piple∞¢
-}
+  // read the req.query object; provide default values that are
+  const { name = "", type } = req.query;
+
+  // filter our pokemon by name if name query param is present
+  if (name) {
+    response = response.filter((pokemon) =>
+      // case insensitive searching
+      pokemon.name.toLowerCase().includes(name.toLowerCase())
+    );
+  }
+
+  // filter our pokemon by type if type query param is present
+  if (type) {
+    response = response.filter((pokemon) => pokemon.type.includes(type));
+  }
+
+  // return the new arrays based on validations
+  res.json(response);
+};
 
 // use the express app object and the function as a paramter to perform GET request
 // a function passed into another function is a callbck

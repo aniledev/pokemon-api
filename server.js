@@ -7,11 +7,20 @@ const API_TOKEN = process.env.API_TOKEN;
 const fs = require("fs");
 const app = express();
 
-// this fill is access by node by hidden to a file management systne
-
 app.use(morgan("dev"));
+
+// use function as middleware
 app.use(function validateBearerToken(req, res, next) {
+  const authToken = req.get("Authorization");
+  const apiToken = process.env.API_TOKEN;
+
   console.log("validate bearer token middleware");
+
+  // validate the authorization header to match the process token as well as make sure a token is present
+  if (!authToken || authToken.split("")[1] !== apiToken) {
+    return res.status(401).json({ error: "Unauthorized request" });
+  }
+
   //move on to the next middleware
   next();
 });
@@ -64,7 +73,5 @@ function validateBearerToken(_req, res, _next) {
 // a function passed into another function is a callbck
 app.get("/types", handleGetTypes);
 app.get("/pokemon", handleGetPokemon);
-
-app.get("/valid-types", handleGetTypes);
 
 app.listen(8000, () => console.log("Server on 8000"));

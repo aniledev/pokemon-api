@@ -4,9 +4,11 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const POKEDEX = require("./pokedex.json");
+const cors = require("cors");
 const app = express();
 
 app.use(morgan("dev"));
+app.use(cors());
 
 // use function as middleware to validate authorizion headers and token
 app.use(function validateBearerToken(req, res, next) {

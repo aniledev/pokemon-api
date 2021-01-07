@@ -8,6 +8,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const app = express();
 
+const PORT = process.env.PORT || 8000;
+
 app.use(morgan("dev"));
 // this middleware hides some specific request headers to make sure your application isn't more susceptible to attacks
 app.use(helmet());
@@ -91,4 +93,6 @@ const handleGetPokemon = (req, res, next) => {
 app.get("/types", handleGetTypes);
 app.get("/pokemon", handleGetPokemon);
 
-app.listen(8000, () => console.log("Server on 8000"));
+app.listen(PORT, () =>
+  console.log(`Server listening at http://localhost:${PORT}`)
+);

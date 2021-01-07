@@ -6,7 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const app = express();
 
-const morganSetting = process.env.NODE_ENV === "production" ? "tiny" : "common";
+const morganSetting = process.env.NODE_ENV === "production" ? "tiny" : "dev";
 app.use(morgan(morganSetting));
 // this middleware hides some specific request headers to make sure your application isn't more susceptible to attacks
 app.use(helmet());

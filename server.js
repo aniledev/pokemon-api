@@ -1,5 +1,3 @@
-// import express module, morgan module, express app object, and use morgan middle ware
-// require the dotenv file as early as possible; this module allows the .env file to be read and process.env variables to be written
 require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
@@ -8,15 +6,13 @@ const cors = require("cors");
 const helmet = require("helmet");
 const app = express();
 
-const PORT = process.env.PORT || 8000;
-
 const morganSetting = process.env.NODE_ENV === "production" ? "tiny" : "common";
 app.use(morgan(morganSetting));
 // this middleware hides some specific request headers to make sure your application isn't more susceptible to attacks
 app.use(helmet());
 app.use(cors());
 
-// use function as middleware to validate authorizion headers and token
+// use function as middleware to validate authorization headers and token
 app.use(function validateBearerToken(req, res, next) {
   const apiToken = process.env.API_TOKEN;
   const authToken = req.get("Authorization");
@@ -30,7 +26,6 @@ app.use(function validateBearerToken(req, res, next) {
   next();
 });
 
-// array of valid pokemon types
 const validTypes = [
   `Bug`,
   `Dark`,
@@ -54,10 +49,6 @@ const validTypes = [
 
 // create a function that handles the req and res callback function
 const handleGetTypes = (req, res, next) => {
-  // The search options for either name or type are provided in query string parameters
-  // When searching by name, users are searching for whether the Pokemon's name includes a specified string. The search should be case insensitive.
-  //When searching by type, users must specify one of the valid types
-
   res.json(validTypes);
 };
 
@@ -80,14 +71,23 @@ const handleGetPokemon = (req, res, next) => {
     response = response.filter((pokemon) => pokemon.type.includes(type));
   }
 
-  // return the new arrays based on validations
   res.json(response);
 };
 
-// use the express app object and the function as a paramter to perform GET request
-// a function passed into another function is a callbck
 app.get("/types", handleGetTypes);
 app.get("/pokemon", handleGetPokemon);
+
+app.use((error, req, res, next) => {
+  let response;
+  if (process.env.NODE_ENV === "production") {
+    response = { error: { message: "server error" } };
+  } else {
+    response = { error };
+  }
+  res.status(500).json(response);
+});
+
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () =>
   console.log(`Server listening at http://localhost:${PORT}`)

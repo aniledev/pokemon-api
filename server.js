@@ -10,7 +10,8 @@ const app = express();
 
 const PORT = process.env.PORT || 8000;
 
-app.use(morgan("dev"));
+const morganSetting = process.env.NODE_ENV === "production" ? "tiny" : "common";
+app.use(morgan(morganSetting));
 // this middleware hides some specific request headers to make sure your application isn't more susceptible to attacks
 app.use(helmet());
 app.use(cors());
@@ -19,11 +20,6 @@ app.use(cors());
 app.use(function validateBearerToken(req, res, next) {
   const apiToken = process.env.API_TOKEN;
   const authToken = req.get("Authorization");
-
-  console.log(apiToken);
-  console.log(authToken);
-
-  console.log("validate bearer token middleware");
 
   // validate the authorization header to match the process token as well as make sure a token is present
   if (!authToken || authToken !== apiToken) {

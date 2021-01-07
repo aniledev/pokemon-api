@@ -14,7 +14,7 @@ app.use(cors());
 
 // use function as middleware to validate authorization headers and token
 app.use(function validateBearerToken(req, res, next) {
-  const apiToken = process.env.API_TOKEN.split(" ")[1];
+  const apiToken = process.env.API_TOKEN;
   const authToken = req.get("Authorization");
 
   // validate the authorization header to match the process token as well as make sure a token is present
